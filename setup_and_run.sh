@@ -22,7 +22,7 @@ sudo chmod +x /usr/local/bin/docker-compose
 sudo apt install -y certbot python3-certbot-nginx nginx
 
 # Clone the repository using personal access token
-git clone https://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@github.com/bchwy/when2meet.git
+git clone https://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@github.com/bchewy/when2meet.git
 cd when2meet
 
 # Build the Docker image
