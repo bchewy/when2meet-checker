@@ -42,6 +42,20 @@
 <body class="bg-gray-50 text-gray-800 font-sans">
     <div class="container mx-auto px-4 py-8 max-w-3xl">
         <h1 class="text-3xl font-bold text-center mb-8 text-indigo-600">When2Meet Comparison</h1>
+        
+        <!-- New explanation section -->
+        <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
+            <p class="font-bold">What does this app do?</p>
+            <p>This app helps you compare your list of expected participants with those who have actually filled out a When2Meet poll. It's perfect for students and groups trying to schedule meetings!</p>
+            <p class="mt-2"><strong>How to use:</strong></p>
+            <ol class="list-decimal list-inside ml-4">
+                <li>Enter the names of all expected participants (one per line) in the first box.</li>
+                <li>Paste your When2Meet URL in the second box.</li>
+                <li>Click "Compare" to see who has and hasn't filled out the When2Meet.</li>
+            </ol>
+            <p class="mt-2"><strong>Please note:</strong> There is a rate limit of 10 requests per minute.</p>
+        </div>
+
         <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             {{ form.csrf_token }}
             <div class="mb-4">

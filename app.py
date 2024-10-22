@@ -15,6 +15,7 @@ import time
 import logging
 import json
 import traceback
+import sys
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key-here"  # Change this to a random secret key
@@ -114,8 +115,9 @@ def find_best_match(name, participant_names, threshold=90):
 
 
 @app.route("/", methods=["GET", "POST"])
-@limiter.limit("10 per minute")
+@limiter.limit("50 per minute")
 def index():
+    logging.debug("Entering index route")
     form = ComparisonForm()
     if request.method == "POST" and form.validate_on_submit():
         names_list = [
@@ -165,6 +167,7 @@ def index():
                 error="An error occurred while processing your request. Please try again later.",
             )
 
+    logging.debug("Exiting index route")
     return render_template("index.html", form=form)
 
 
@@ -173,5 +176,5 @@ def ratelimit_handler(e):
     return jsonify(error="Rate limit exceeded. Please try again later."), 429
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    app.run(debug=True)
