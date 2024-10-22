@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +17,7 @@
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 1000;
         }
+
         .loading-content {
             position: absolute;
             top: 50%;
@@ -24,6 +26,7 @@
             text-align: center;
             color: white;
         }
+
         .spinner {
             border: 4px solid #f3f3f3;
             border-top: 4px solid #3498db;
@@ -33,20 +36,28 @@
             animation: spin 1s linear infinite;
             margin: 0 auto 20px;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body class="bg-gray-50 text-gray-800 font-sans">
     <div class="container mx-auto px-4 py-8 max-w-3xl">
         <h1 class="text-3xl font-bold text-center mb-8 text-indigo-600">When2Meet Comparison</h1>
-        
+
         <!-- New explanation section -->
         <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
             <p class="font-bold">What does this app do?</p>
-            <p>This app helps you compare your list of expected participants with those who have actually filled out a When2Meet poll. It's perfect for students and groups trying to schedule meetings!</p>
+            <p>This app helps you compare your list of expected participants with those who have actually filled out a
+                When2Meet poll. It's perfect for students and groups trying to schedule meetings!</p>
             <p class="mt-2"><strong>How to use:</strong></p>
             <ol class="list-decimal list-inside ml-4">
                 <li>Enter the names of all expected participants (one per line) in the first box.</li>
@@ -54,6 +65,8 @@
                 <li>Click "Compare" to see who has and hasn't filled out the When2Meet.</li>
             </ol>
             <p class="mt-2"><strong>Please note:</strong> There is a rate limit of 10 requests per minute.</p>
+            <p class="mt-2"><strong>Data privacy:</strong> No data is stored in transit or on any servers. None of your
+                data will be saved.</p>
         </div>
 
         <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -62,13 +75,15 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="names_list">
                     Enter names (one per line):
                 </label>
-                {{ form.names_list(rows=5, class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.names_list(rows=5, class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
+                leading-tight focus:outline-none focus:shadow-outline") }}
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="when2meet_url">
                     When2Meet URL:
                 </label>
-                {{ form.when2meet_url(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+                {{ form.when2meet_url(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
+                leading-tight focus:outline-none focus:shadow-outline") }}
             </div>
             <div class="flex items-center justify-between">
                 <button type="submit"
@@ -86,48 +101,49 @@
         </div>
 
         {% if comparison %}
-            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                <h2 class="text-2xl font-bold mb-4 text-indigo-600">Comparison Report</h2>
-                <div class="flex flex-col md:flex-row justify-between">
-                    <div class="w-full md:w-1/2 pr-2">
-                        <h3 class="text-lg font-semibold mb-2 text-gray-700">Your List</h3>
-                        <ul class="space-y-1">
-                            {% for user_name, _ in comparison %}
-                                <li class="py-1 px-2 {% if user_name in missing_names %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %} rounded">
-                                    {{ user_name or '&nbsp;'|safe }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="w-full md:w-1/2 pl-2 mt-4 md:mt-0">
-                        <h3 class="text-lg font-semibold mb-2 text-gray-700">When2Meet Names</h3>
-                        <ul class="space-y-1">
-                            {% for _, w2m_name in comparison %}
-                                <li class="py-1 px-2 bg-beige-100 text-beige-800 rounded">
-                                    {{ w2m_name or '&nbsp;'|safe }}
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            {% if missing_names %}
-                <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                    <h2 class="text-2xl font-bold mb-4 text-red-600">Missing Names</h2>
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-bold mb-4 text-indigo-600">Comparison Report</h2>
+            <div class="flex flex-col md:flex-row justify-between">
+                <div class="w-full md:w-1/2 pr-2">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">Your List</h3>
                     <ul class="space-y-1">
-                        {% for name in missing_names %}
-                            <li class="py-1 px-2 bg-red-100 text-red-800 rounded">{{ name }}</li>
+                        {% for user_name, _ in comparison %}
+                        <li
+                            class="py-1 px-2 {% if user_name in missing_names %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %} rounded">
+                            {{ user_name or '&nbsp;'|safe }}
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>
-            {% endif %}
+                <div class="w-full md:w-1/2 pl-2 mt-4 md:mt-0">
+                    <h3 class="text-lg font-semibold mb-2 text-gray-700">When2Meet Names</h3>
+                    <ul class="space-y-1">
+                        {% for _, w2m_name in comparison %}
+                        <li class="py-1 px-2 bg-beige-100 text-beige-800 rounded">
+                            {{ w2m_name or '&nbsp;'|safe }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% if missing_names %}
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-bold mb-4 text-red-600">Missing Names</h2>
+            <ul class="space-y-1">
+                {% for name in missing_names %}
+                <li class="py-1 px-2 bg-red-100 text-red-800 rounded">{{ name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         {% endif %}
 
         {% if error %}
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                <strong class="font-bold">Error!</strong>
-                <span class="block sm:inline">{{ error }}</span>
-            </div>
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <strong class="font-bold">Error!</strong>
+            <span class="block sm:inline">{{ error }}</span>
+        </div>
         {% endif %}
 
         <script>
@@ -160,7 +176,7 @@
                 }
             }
 
-            form.addEventListener('submit', function(e) {
+            form.addEventListener('submit', function (e) {
                 e.preventDefault();
                 loadingOverlay.style.display = 'block';
                 updateLoadingMessage();
@@ -169,4 +185,5 @@
         </script>
     </div>
 </body>
+
 </html>
