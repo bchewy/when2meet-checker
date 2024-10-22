@@ -104,7 +104,8 @@
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-indigo-600">Comparison Report</h2>
-                <button onclick="resetForm()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <button onclick="resetForm()"
+                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Reset
                 </button>
             </div>
@@ -180,24 +181,29 @@
             const loadingMessage = document.getElementById('loading-message');
 
             const messages = [
-                "Initializing the name-o-matic 3000...",
-                "Scanning the interwebs for elusive names...",
-                "Consulting the ancient scrolls of attendance...",
-                "Decrypting the enigma of availability...",
-                "Summoning the spirits of scheduling...",
-                "Aligning the stars for perfect timing...",
-                "Calibrating the flux capacitor...",
-                "Untangling the web of time slots...",
-                "Polishing the crystal ball of meetings...",
-                "Feeding the hamsters powering our servers..."
+                "Summoning the SMU lions for scheduling wisdom...",
+                "Consulting the Kwa Geok Choo Law Library for time management secrets...",
+                "Decoding the matrix of SMU seminar room bookings...",
+                "Channeling the spirit of teamLEAD for group coordination...",
+                "Aligning schedules with the precision of SMU's bell curve...",
+                "Navigating the maze of SMU's underground concourse for lost time slots...",
+                "Harnessing the power of SMU's Bloomberg terminals for availability analysis...",
+                "Seeking guidance from the wise owls of SMU's School of Information Systems...",
+                "Performing a SWOT analysis on everyone's schedules...",
+                "Applying SMU's analytics prowess to solve the scheduling puzzle...",
+                "Unleashing the collaborative spirit of SMU's seminar-style learning...",
+                "Optimizing timetables with the efficiency of SMU's bidding system...",
+                "Syncing schedules faster than SMU's campus Wi-Fi...",
+                "Crunching numbers harder than an SMU accountancy major...",
+                "Negotiating time slots with the finesse of an SMU law student..."
             ];
 
             let messageIndex = 0;
             let progress = 0;
 
             function updateLoadingMessage() {
-                loadingMessage.textContent = messages[messageIndex];
-                messageIndex = (messageIndex + 1) % messages.length;
+                const randomIndex = Math.floor(Math.random() * messages.length);
+                loadingMessage.textContent = messages[randomIndex];
                 progress += 10;
                 if (progress < 100) {
                     setTimeout(updateLoadingMessage, 3000);
