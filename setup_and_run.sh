@@ -21,19 +21,19 @@ sudo chmod +x /usr/local/bin/docker-compose
 # Install Certbot and Nginx
 sudo apt install -y certbot python3-certbot-nginx nginx
 
-# Clone the repository (replace with your actual repository URL)
-git clone https://github.com/yourusername/when2meet-comparison.git
-cd when2meet-comparison
+# Clone the repository using personal access token
+git clone https://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@github.com/bchwy/when2meet.git
+cd when2meet
 
 # Build the Docker image
-docker build -t when2meet-comparison .
+docker build -t when2meet .
 
 # Create a Docker Compose file
 cat <<EOF >docker-compose.yml
 version: '3'
 services:
   web:
-    image: when2meet-comparison
+    image: when2meet
     ports:
       - "5000:5000"
     restart: always
@@ -66,12 +66,12 @@ sudo nginx -t
 sudo systemctl reload nginx
 
 # Obtain and install SSL certificate
-sudo certbot --nginx -d when2meet.bchwy.com --non-interactive --agree-tos --email your-email@example.com
+sudo certbot --nginx -d when2meet.bchwy.com --non-interactive --agree-tos --email brian@bchwy.com
 
 # Set up automatic renewal
 (
-    crontab -l 2>/dev/null
-    echo "0 12 * * * /usr/bin/certbot renew --quiet"
+  crontab -l 2>/dev/null
+  echo "0 12 * * * /usr/bin/certbot renew --quiet"
 ) | crontab -
 
 echo "Setup complete! Your application should now be running at https://when2meet.bchwy.com"
