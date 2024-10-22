@@ -137,6 +137,29 @@
             </ul>
         </div>
         {% endif %}
+
+        <!-- New section for the generated message -->
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <h2 class="text-2xl font-bold mb-4 text-green-600">Message for Your Group</h2>
+            <div class="bg-gray-100 p-4 rounded">
+                <p id="generated-message" class="text-gray-800">
+                    Hey everyone! I've just checked our When2Meet responses.
+                    {% if missing_names %}
+                    We're still waiting on responses from: {{ missing_names|join(', ') }}.
+                    If that's you, please fill out the When2Meet as soon as possible so we can finalize our meeting
+                    time.
+                    {% else %}
+                    Great news! Everyone has filled out the When2Meet. We're all set to choose a meeting time that works
+                    for everyone.
+                    {% endif %}
+                    Let's aim to finalize our meeting schedule soon. Thanks for your cooperation!
+                </p>
+            </div>
+            <button onclick="copyMessage()"
+                class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Copy Message
+            </button>
+        </div>
         {% endif %}
 
         {% if error %}
@@ -182,7 +205,21 @@
                 updateLoadingMessage();
                 this.submit();
             });
+
+            function copyMessage() {
+                const messageElement = document.getElementById('generated-message');
+                const messageText = messageElement.innerText;
+
+                navigator.clipboard.writeText(messageText).then(function () {
+                    alert('Message copied to clipboard!');
+                }, function (err) {
+                    console.error('Could not copy text: ', err);
+                });
+            }
         </script>
+
+        <!-- GoatCounter analytics -->
+        <script data-goatcounter="https://bchewy.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
     </div>
 </body>
 
