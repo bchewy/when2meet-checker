@@ -102,7 +102,12 @@
 
         {% if comparison %}
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <h2 class="text-2xl font-bold mb-4 text-indigo-600">Comparison Report</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-indigo-600">Comparison Report</h2>
+                <button onclick="resetForm()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Reset
+                </button>
+            </div>
             <div class="flex flex-col md:flex-row justify-between">
                 <div class="w-full md:w-1/2 pr-2">
                     <h3 class="text-lg font-semibold mb-2 text-gray-700">Your List</h3>
@@ -215,6 +220,29 @@
                 }, function (err) {
                     console.error('Could not copy text: ', err);
                 });
+            }
+
+            function resetForm() {
+                // Clear form fields
+                document.getElementById('names_list').value = '';
+                document.getElementById('when2meet_url').value = '';
+
+                // Remove comparison results
+                const comparisonResults = document.querySelectorAll('.bg-white.shadow-md.rounded');
+                comparisonResults.forEach(result => {
+                    if (result.querySelector('h2')) {  // Check if it's a result div
+                        result.remove();
+                    }
+                });
+
+                // Remove any error messages
+                const errorMessage = document.querySelector('.bg-red-100.border.border-red-400');
+                if (errorMessage) {
+                    errorMessage.remove();
+                }
+
+                // Scroll to top of the page
+                window.scrollTo(0, 0);
             }
         </script>
 
