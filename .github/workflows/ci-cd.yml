@@ -35,8 +35,8 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER}@${HOST} '
-            cd /path/to/your/project &&
+            cd /home/ubuntu/when2meet &&
             git pull origin main &&
-            docker build -t when2meet-comparison . &&
-            docker-compose up -d --force-recreate
+            chmod +x rebuild_and_run.sh &&
+            ./rebuild_and_run.sh
           '
