@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, session, jsonify
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf import FlaskForm
@@ -16,6 +16,7 @@ import logging
 import json
 import traceback
 import sys
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your-secret-key-here"  # Change this to a random secret key
@@ -119,6 +120,11 @@ def find_best_match(name, participant_names, threshold=90):
 def index():
     logging.debug("Entering index route")
     form = ComparisonForm()
+    
+    # Initialize previous_submissions in session if it doesn't exist
+    if 'previous_submissions' not in session:
+        session['previous_submissions'] = []
+
     if request.method == "POST" and form.validate_on_submit():
         names_list = [
             name.strip() for name in form.names_list.data.split("\n") if name.strip()
@@ -153,14 +159,25 @@ def index():
 
             logging.info(f"Found {len(missing_names)} missing names")
 
+            # Save the current submission
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            session['previous_submissions'].append({
+                'timestamp': timestamp,
+                'names_list': form.names_list.data,
+                'when2meet_url': when2meet_url
+            })
+            session.modified = True
+
             return render_template(
                 "index.html",
                 form=form,
                 comparison=comparison,
                 missing_names=missing_names,
+                previous_submissions=session['previous_submissions']
             )
         except Exception as e:
             logging.error(f"An error occurred: {str(e)}")
+            logging.error(traceback.format_exc())  # Add this line to get more detailed error information
             return render_template(
                 "index.html",
                 form=form,
@@ -168,12 +185,21 @@ def index():
             )
 
     logging.debug("Exiting index route")
-    return render_template("index.html", form=form)
+    return render_template("index.html", form=form, previous_submissions=session.get('previous_submissions', []))
 
 
 @app.errorhandler(429)
 def ratelimit_handler(e):
     return jsonify(error="Rate limit exceeded. Please try again later."), 429
+
+
+@app.route('/get_previous_submission/<timestamp>')
+def get_previous_submission(timestamp):
+    previous_submissions = session.get('previous_submissions', [])
+    for submission in previous_submissions:
+        if submission['timestamp'] == timestamp:
+            return jsonify(submission)
+    return jsonify({}), 404
 
 
 if __name__ == '__main__':

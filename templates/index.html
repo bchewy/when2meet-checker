@@ -53,6 +53,17 @@
     <div class="container mx-auto px-4 py-8 max-w-3xl">
         <h1 class="text-3xl font-bold text-center mb-8 text-indigo-600">📅 When2Meet Comparison</h1>
 
+        <!-- New dropdown for previous submissions -->
+        <!-- <div class="mb-8">
+            <label for="previous-submissions" class="block text-gray-700 text-sm font-bold mb-2">Previous Submissions:</label>
+            <select id="previous-submissions" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                <option value="">Select a previous submission</option>
+                {% for submission in previous_submissions %}
+                <option value="{{ submission.timestamp }}">{{ submission.timestamp }}</option>
+                {% endfor %}
+            </select>
+        </div> -->
+
         <!-- New explanation section -->
         <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
             <p class="font-bold">Streamline Your When2Meet Coordination</p>
@@ -81,6 +92,35 @@
                 </a>
             </p>
         </div>
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
+            <button class="flex justify-between items-center w-full" onclick="toggleRoadmap()">
+                <h2 class="text-2xl font-bold text-indigo-600">Project Roadmap</h2>
+                <svg class="w-6 h-6 transform transition-transform duration-200" id="roadmapArrow"
+                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            <div class="space-y-4 hidden" id="roadmapContent">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700">To Do:</h3>
+                    <ul class="list-disc list-inside pl-4">
+                        <li>Summarize Everyone's Schedule</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700">In Progress:</h3>
+                    <ul class="list-disc list-inside pl-4">
+                        <!-- Add in-progress items here -->
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-700">Done:</h3>
+                    <ul class="list-disc list-inside pl-4">
+                        <li>Initial app setup</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
         <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             {{ form.csrf_token }}
@@ -89,14 +129,15 @@
                     Enter names (one per line):
                 </label>
                 {{ form.names_list(rows=5, class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
-                leading-tight focus:outline-none focus:shadow-outline") }}
+                leading-tight focus:outline-none focus:shadow-outline", placeholder="John Smith\nEmma Johnson\nMichael Brown") }}
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="when2meet_url">
                     When2Meet URL:
                 </label>
                 {{ form.when2meet_url(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
-                leading-tight focus:outline-none focus:shadow-outline") }}
+                leading-tight focus:outline-none focus:shadow-outline", placeholder="(e.g.,
+                https://www.when2meet.com/?XXXXXXXX-XXXXX)") }}
             </div>
             <div class="flex items-center justify-between">
                 <button type="submit"
@@ -262,6 +303,27 @@
 
                 // Scroll to top of the page
                 window.scrollTo(0, 0);
+            }
+
+            // New function to handle previous submission selection
+            document.getElementById('previous-submissions').addEventListener('change', function () {
+                const selectedTimestamp = this.value;
+                if (selectedTimestamp) {
+                    fetch(`/get_previous_submission/${selectedTimestamp}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById('names_list').value = data.names_list;
+                            document.getElementById('when2meet_url').value = data.when2meet_url;
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            });
+
+            function toggleRoadmap() {
+                const content = document.getElementById('roadmapContent');
+                const arrow = document.getElementById('roadmapArrow');
+                content.classList.toggle('hidden');
+                arrow.classList.toggle('rotate-180');
             }
         </script>
 
