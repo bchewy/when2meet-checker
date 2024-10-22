@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>When2Meet Comparison</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .loading-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-3xl">
+        <h1 class="text-3xl font-bold text-center mb-8 text-indigo-600">When2Meet Comparison</h1>
+        <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            {{ form.csrf_token }}
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="names_list">
+                    Enter names (one per line):
+                </label>
+                {{ form.names_list(rows=5, class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2" for="when2meet_url">
+                    When2Meet URL:
+                </label>
+                {{ form.when2meet_url(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline") }}
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit"
+                    class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Compare
+                </button>
+            </div>
+        </form>
+
+        <div class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p id="loading-message">Initializing the name-o-matic 3000...</p>
+            </div>
+        </div>
+
+        {% if comparison %}
+            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <h2 class="text-2xl font-bold mb-4 text-indigo-600">Comparison Report</h2>
+                <div class="flex flex-col md:flex-row justify-between">
+                    <div class="w-full md:w-1/2 pr-2">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-700">Your List</h3>
+                        <ul class="space-y-1">
+                            {% for user_name, _ in comparison %}
+                                <li class="py-1 px-2 {% if user_name in missing_names %}bg-red-100 text-red-800{% else %}bg-green-100 text-green-800{% endif %} rounded">
+                                    {{ user_name or '&nbsp;'|safe }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="w-full md:w-1/2 pl-2 mt-4 md:mt-0">
+                        <h3 class="text-lg font-semibold mb-2 text-gray-700">When2Meet Names</h3>
+                        <ul class="space-y-1">
+                            {% for _, w2m_name in comparison %}
+                                <li class="py-1 px-2 bg-beige-100 text-beige-800 rounded">
+                                    {{ w2m_name or '&nbsp;'|safe }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% if missing_names %}
+                <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                    <h2 class="text-2xl font-bold mb-4 text-red-600">Missing Names</h2>
+                    <ul class="space-y-1">
+                        {% for name in missing_names %}
+                            <li class="py-1 px-2 bg-red-100 text-red-800 rounded">{{ name }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endif %}
+
+        {% if error %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">{{ error }}</span>
+            </div>
+        {% endif %}
+
+        <script>
+            const form = document.querySelector('form');
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            const loadingMessage = document.getElementById('loading-message');
+
+            const messages = [
+                "Initializing the name-o-matic 3000...",
+                "Scanning the interwebs for elusive names...",
+                "Consulting the ancient scrolls of attendance...",
+                "Decrypting the enigma of availability...",
+                "Summoning the spirits of scheduling...",
+                "Aligning the stars for perfect timing...",
+                "Calibrating the flux capacitor...",
+                "Untangling the web of time slots...",
+                "Polishing the crystal ball of meetings...",
+                "Feeding the hamsters powering our servers..."
+            ];
+
+            let messageIndex = 0;
+            let progress = 0;
+
+            function updateLoadingMessage() {
+                loadingMessage.textContent = messages[messageIndex];
+                messageIndex = (messageIndex + 1) % messages.length;
+                progress += 10;
+                if (progress < 100) {
+                    setTimeout(updateLoadingMessage, 3000);
+                }
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                loadingOverlay.style.display = 'block';
+                updateLoadingMessage();
+                this.submit();
+            });
+        </script>
+    </div>
+</body>
+</html>
