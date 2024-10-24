@@ -83,19 +83,20 @@
 
         <!-- New explanation section -->
         <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-8" role="alert">
-            <p class="font-bold">Streamline Your When2Meet Coordination</p>
-            <p>As your group size grows beyond 5-10 people, checking who has filled out a When2Meet poll becomes
-                increasingly time-consuming. This app solves that problem by quickly comparing (between 10-30 seconds)
-                your
-                expected participant list with actual When2Meet responses.</p>
-            <p class="mt-2"><strong>How it works:</strong></p>
+            <p class="font-bold">Easily Coordinate with When2Meet</p>
+            <p>Managing When2Meet polls gets tedious as group sizes grow. This tool simplifies that process by quickly
+                matching your expected participants to their poll responses—typically within ~8 seconds or less.</p>
+
+            <p class="mt-2"><strong>Steps to Use:</strong></p>
             <ul class="list-disc list-inside ml-4">
-                <li>Input your participant list, paste your When2Meet URL, and click "Compare".</li>
-                <li>Instantly see who has and hasn't completed the poll, saving you valuable time and effort.
+                <li>Enter your participant list, paste the When2Meet URL, and hit "Compare".</li>
+                <li>See the best timeslots for your group (40% availability), and the availability of each participant.
                 </li>
             </ul>
-            <p class="mt-2"><strong>Note:</strong> 10 requests/minute limit. Your data is not stored or saved.
-            </p>
+
+            <p class="mt-2"><strong>Important:</strong> There’s a 10 requests per minute limit. No data is stored or
+                saved.</p>
+
             <p class="mt-2 flex items-center">
                 <span class="mr-2">Created by</span>
                 <a href="https://twitter.com/bchewyme" target="_blank" rel="noopener noreferrer"
@@ -117,7 +118,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
-            <div class="space-y-4 hidden" id="roadmapContent">
+            <div class="space-y-4" id="roadmapContent">
                 <div class="space-y-2">
                     <div class="flex items-center">
                         <span class="font-semibold text-gray-700">v0.02</span>
@@ -127,6 +128,7 @@
                         <li>Added time slot analysis with 1-3 hour meeting slots</li>
                         <li>Added participant availability tracking</li>
                         <li>Added percentage calculations for each time slot</li>
+                        <li>Added heatmap for availability</li>
                     </ul>
                 </div>
 
@@ -162,16 +164,15 @@
                     Enter names (one per line):
                 </label>
                 {{ form.names_list(rows=5, class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
-                leading-tight focus:outline-none focus:shadow-outline", placeholder="John Smith\nEmma Johnson\nMichael
-                Brown") }}
+                leading-tight focus:outline-none focus:shadow-outline", placeholder="Franky Lim\nSmith Quaz\nSean Low\nVeronica Siew") }}
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="when2meet_url">
                     When2Meet URL:
                 </label>
                 {{ form.when2meet_url(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
-                leading-tight focus:outline-none focus:shadow-outline", placeholder="(e.g.
-                https://www.when2meet.com/?XXXXXXXX-XXXXX)") }}
+                leading-tight focus:outline-none focus:shadow-outline",
+                placeholder="(e.g.https://www.when2meet.com/?XXXXXXXX-XXXXX)") }}
             </div>
             <div class="flex items-center justify-between">
                 <button type="submit"
@@ -186,6 +187,7 @@
             <div class="loading-content">
                 <div class="spinner"></div>
                 <p id="loading-message">Initializing the name-o-matic 3000...</p>
+                <p id="loading-timer" class="text-white text-lg mt-2">00:00:00.000</p> <!-- Timer display -->
             </div>
         </div>
 
@@ -519,8 +521,8 @@
             </div>
             {% endif %}
 
-            <!-- Time Slots Table with Toggle -->
-            <div class="bg-white shadow-md rounded p-6">
+            <!-- Time Slots Table with Toggle disabled temporarily-->
+            <!-- <div class="bg-white shadow-md rounded p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h4 class="text-xl font-semibold">All Time Slots</h4>
                     <button onclick="toggleTimeSlots()" class="text-indigo-600 hover:text-indigo-800">
@@ -529,7 +531,6 @@
                     </button>
                 </div>
 
-                <!-- Preview of first few slots -->
                 <div class="overflow-x-auto mb-4">
                     <table class="min-w-full">
                         <thead class="bg-gray-50">
@@ -563,7 +564,6 @@
                     </table>
                 </div>
 
-                <!-- Full table (hidden by default) -->
                 <div id="timeSlotsContent" class="hidden">
                     <div class="overflow-x-auto">
                         <table class="min-w-full">
@@ -611,7 +611,7 @@
                         </table>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <script>
@@ -721,6 +721,25 @@
         {% endif %}
 
         <script>
+            let timerInterval;
+            let startTime;
+
+            function startTimer() {
+                startTime = Date.now();
+                timerInterval = setInterval(() => {
+                    const elapsedTime = Date.now() - startTime;
+                    const date = new Date(elapsedTime);
+                    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+                    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+                    const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
+                    document.getElementById('loading-timer').textContent = `${minutes}:${seconds}.${milliseconds}`;
+                }, 10); // Update every 10 milliseconds
+            }
+
+            function stopTimer() {
+                clearInterval(timerInterval);
+            }
+
             const form = document.querySelector('form');
             const loadingOverlay = document.querySelector('.loading-overlay');
             const loadingMessage = document.getElementById('loading-message');
@@ -730,6 +749,7 @@
                     e.preventDefault();
                     loadingOverlay.style.display = 'block';
                     updateLoadingMessage();
+                    startTimer(); // Start the timer
                     this.submit();
                 });
             }

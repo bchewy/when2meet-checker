@@ -369,13 +369,13 @@ def get_participant_data(url):
             avg_availability = 0
 
         # Find continuous time blocks (1hr, 2hr, 3hr)
-        def find_continuous_slots(slots, required_slots, min_availability_pct=50):  # Lower threshold to 50%
+        def find_continuous_slots(slots, required_slots, min_availability_pct=50):
             continuous_blocks = []
             current_block = []
-            
+
             # Sort slots by timestamp
             sorted_slots = sorted(slots, key=lambda x: x["timestamp"])
-            
+
             for i, slot in enumerate(sorted_slots):
                 if slot["availability_percentage"] >= min_availability_pct:
                     if not current_block:
@@ -390,7 +390,7 @@ def get_participant_data(url):
                             if len(current_block) >= required_slots:
                                 continuous_blocks.append(current_block)
                             current_block = [slot]
-                    
+
                     # Check if we have enough slots for the required duration
                     if len(current_block) >= required_slots:
                         continuous_blocks.append(current_block[:])
@@ -399,20 +399,43 @@ def get_participant_data(url):
                     if len(current_block) >= required_slots:
                         continuous_blocks.append(current_block)
                     current_block = []
-            
+
             # Check final block
             if len(current_block) >= required_slots:
                 continuous_blocks.append(current_block)
-            
+
             # If no blocks found with current threshold, try with lower thresholds
             if not continuous_blocks:
-                lower_thresholds = [40, 30, 20]  # Try progressively lower thresholds
-                for threshold in lower_thresholds:
-                    temp_blocks = find_continuous_slots(slots, required_slots, threshold)
-                    if temp_blocks:
-                        continuous_blocks = temp_blocks
+                for threshold in [40, 30, 20]:  # Try progressively lower thresholds
+                    continuous_blocks = []
+                    current_block = []
+                    for i, slot in enumerate(sorted_slots):
+                        if slot["availability_percentage"] >= threshold:
+                            if not current_block:
+                                current_block = [slot]
+                            else:
+                                last_timestamp = current_block[-1]["timestamp"]
+                                if slot["timestamp"] - last_timestamp == 900:
+                                    current_block.append(slot)
+                                else:
+                                    if len(current_block) >= required_slots:
+                                        continuous_blocks.append(current_block)
+                                    current_block = [slot]
+
+                            if len(current_block) >= required_slots:
+                                continuous_blocks.append(current_block[:])
+                                current_block = current_block[1:]
+                        else:
+                            if len(current_block) >= required_slots:
+                                continuous_blocks.append(current_block)
+                            current_block = []
+
+                    if len(current_block) >= required_slots:
+                        continuous_blocks.append(current_block)
+
+                    if continuous_blocks:
                         break
-            
+
             return continuous_blocks
 
         # Find blocks for different durations
