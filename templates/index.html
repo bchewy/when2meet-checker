@@ -378,7 +378,8 @@
                             <span class="hidden sm:inline">1 Hour</span>
                             <span class="sm:hidden">1H</span>
                             {% if continuous_slots.one_hour %}
-                            <span class="ml-1.5 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                            <span
+                                class="ml-1.5 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                                 {{ continuous_slots.one_hour|length }}
                             </span>
                             {% endif %}
@@ -389,7 +390,8 @@
                             <span class="hidden sm:inline">2 Hours</span>
                             <span class="sm:hidden">2H</span>
                             {% if continuous_slots.two_hour %}
-                            <span class="ml-1.5 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                            <span
+                                class="ml-1.5 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                                 {{ continuous_slots.two_hour|length }}
                             </span>
                             {% endif %}
@@ -400,7 +402,8 @@
                             <span class="hidden sm:inline">3 Hours</span>
                             <span class="sm:hidden">3H</span>
                             {% if continuous_slots.three_hour %}
-                            <span class="ml-1.5 bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                            <span
+                                class="ml-1.5 bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-0.5 rounded-full">
                                 {{ continuous_slots.three_hour|length }}
                             </span>
                             {% endif %}
@@ -733,9 +736,21 @@
 
             function updateLoadingMessage() {
                 const messages = [
-                    "Summoning the SMU lions for scheduling wisdom...",
-                    "Consulting the Kwa Geok Choo Law Library for time management secrets...",
-                    // Add more messages as needed
+                    "Consulting the SMU lions for their best-kept scheduling secrets... or just a good nap!",
+                    "Summoning the spirits of past students to find the perfect timeslot!",
+                    "Asking the Kwa Geok Choo Law Library for a miracle on scheduling... and maybe a coffee!",
+                    "Negotiating with the scheduling gods for a miracle... or at least a decent timeslot!",
+                    "Searching for the elusive 'perfect' timeslot, rumored to be hidden in the depths of the library!",
+                    "Polling the SMU community for their best excuses for missing class... and their preferred timeslots!",
+                    "Consulting the oracle of group chats for the most popular timeslot... and the best memes!",
+                    "Trying to decode the ancient scrolls of the academic calendar for hidden gems!",
+                    "Summoning the ghost of the last student who tried to schedule a class during lunch!",
+                    "Hoping the scheduling fairy grants us a wish for a 3-hour lunch break!",
+                    "Asking the SMU squirrels for their insights on the best times to avoid crowded classes!",
+                    "Searching for the mythical 'free period' that everyone talks about but no one has seen!",
+                    "Consulting the time management wizards for tips on how to fit in a nap between classes!",
+                    "Polling the SMU alumni for their best scheduling hacks... and their favorite food spots!",
+                    "Trying to convince the professors to hold classes during snack time for optimal attendance!",
                 ];
                 const randomIndex = Math.floor(Math.random() * messages.length);
                 loadingMessage.textContent = messages[randomIndex];
