@@ -46,6 +46,23 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Add these styles to your existing <style> section */
+        .tab-button {
+            @apply border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300;
+        }
+
+        .tab-button.active-tab {
+            @apply border-indigo-500 text-indigo-600;
+        }
+
+        /* Adjust the spacing for mobile */
+        @media (max-width: 640px) {
+            .tab-button {
+                flex: 1;
+                min-width: auto;
+            }
+        }
     </style>
 </head>
 
@@ -94,34 +111,50 @@
         </div>
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-8">
             <button class="flex justify-between items-center w-full" onclick="toggleRoadmap()">
-                <h2 class="text-2xl font-bold text-indigo-600">Project Roadmap 🚀</h2>
+                <h2 class="text-2xl font-bold text-indigo-600">Change Log 🚀</h2>
                 <svg class="w-6 h-6 transform transition-transform duration-200" id="roadmapArrow"
                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
             <div class="space-y-4 hidden" id="roadmapContent">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700">To Do:</h3>
-                    <ul class="list-disc list-inside pl-4">
-                        <li>Summarize Everyone's Schedule</li>
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700">v0.02</span>
+                        <span class="text-gray-500 text-sm ml-2">- Latest</span>
+                    </div>
+                    <ul class="list-disc list-inside pl-4 text-gray-600">
+                        <li>Added time slot analysis with 1-3 hour meeting slots</li>
+                        <li>Added participant availability tracking</li>
+                        <li>Added percentage calculations for each time slot</li>
                     </ul>
                 </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700">In Progress:</h3>
-                    <ul class="list-disc list-inside pl-4">
-                        <!-- Add in-progress items here -->
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-700">Done:</h3>
-                    <ul class="list-disc list-inside pl-4">
+
+                <div class="space-y-2">
+                    <div class="flex items-center">
+                        <span class="font-semibold text-gray-700">v0.01</span>
+                    </div>
+                    <ul class="list-disc list-inside pl-4 text-gray-600">
                         <li>Initial app setup</li>
+                        <li>Basic When2Meet URL parsing</li>
+                        <li>Name comparison functionality</li>
                     </ul>
                 </div>
             </div>
         </div>
 
+        <!-- Add this right after the Project Roadmap section -->
+        {% if comparison %}
+        <div class="flex justify-center mb-8">
+            <button onclick="resetForm()"
+                class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Reset
+            </button>
+        </div>
+        {% endif %}
+
+        <!-- Modify the form section to hide when showing results -->
+        {% if not comparison %}
         <form method="POST" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             {{ form.csrf_token }}
             <div class="mb-4">
@@ -129,14 +162,16 @@
                     Enter names (one per line):
                 </label>
                 {{ form.names_list(rows=5, class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
-                leading-tight focus:outline-none focus:shadow-outline", placeholder="John Smith\nEmma Johnson\nMichael Brown") }}
+                leading-tight focus:outline-none focus:shadow-outline", placeholder="John Smith\nEmma Johnson\nMichael
+                Brown") }}
             </div>
             <div class="mb-6">
                 <label class="block text-gray-700 text-sm font-bold mb-2" for="when2meet_url">
                     When2Meet URL:
                 </label>
                 {{ form.when2meet_url(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700
-                leading-tight focus:outline-none focus:shadow-outline", placeholder="(e.g. https://www.when2meet.com/?XXXXXXXX-XXXXX)") }}
+                leading-tight focus:outline-none focus:shadow-outline", placeholder="(e.g.
+                https://www.when2meet.com/?XXXXXXXX-XXXXX)") }}
             </div>
             <div class="flex items-center justify-between">
                 <button type="submit"
@@ -145,6 +180,7 @@
                 </button>
             </div>
         </form>
+        {% endif %}
 
         <div class="loading-overlay">
             <div class="loading-content">
@@ -153,14 +189,11 @@
             </div>
         </div>
 
+        <!-- Add this right after the form -->
         {% if comparison %}
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold text-indigo-600">Comparison Report</h2>
-                <button onclick="resetForm()"
-                    class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Reset
-                </button>
             </div>
             <div class="flex flex-col md:flex-row justify-between">
                 <div class="w-full md:w-1/2 pr-2">
@@ -186,6 +219,8 @@
                 </div>
             </div>
         </div>
+        {% endif %}
+
         {% if missing_names %}
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <h2 class="text-2xl font-bold mb-4 text-red-600">Missing Names</h2>
@@ -198,6 +233,7 @@
         {% endif %}
 
         <!-- New section for the generated message -->
+        <!--
         <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <h2 class="text-2xl font-bold mb-4 text-green-600">Message for Your Group</h2>
             <div class="bg-gray-100 p-4 rounded">
@@ -218,14 +254,467 @@
                 class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 Copy Message
             </button>
+        </div> 
+        -->
+
+        <!-- Add this section where you want to display the time slots -->
+        {% if time_slots and availability_stats %}
+        <div class="mt-8">
+            <h3 class="text-2xl font-bold mb-4 text-indigo-600">Availability Summary</h3>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-sm font-medium text-gray-500">Total Time Slots</div>
+                    <div class="text-3xl font-bold text-indigo-600">{{ availability_stats.total_slots }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-sm font-medium text-gray-500">Maximum People Available</div>
+                    <div class="text-3xl font-bold text-green-600">{{ availability_stats.max_availability }}</div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="text-sm font-medium text-gray-500">Average Availability</div>
+                    <div class="text-3xl font-bold text-blue-600">{{ "%.1f"|format(availability_stats.avg_availability)
+                        }}</div>
+                </div>
+            </div>
+
+            <!-- Best Time Slots Preview -->
+            {% if best_slots %}
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-xl font-semibold">Recommended Meeting Times (Singapore Time)</h4>
+                    <button onclick="toggleBestSlots()" class="text-indigo-600 hover:text-indigo-800">
+                        <span id="bestSlotsToggleText">Show More</span>
+                        <i id="bestSlotsArrow" class="fas fa-chevron-down ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Preview (always visible) -->
+                {% if best_slots|length > 0 %}
+                <div class="flex flex-col p-4 bg-green-50 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <div class="font-medium text-lg">{{ best_slots[0].date }}</div>
+                            <div class="text-gray-600">{{ best_slots[0].time }} SGT</div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="text-right">
+                                <div class="font-medium">{{ best_slots[0].num_available }} people available</div>
+                                <div class="text-sm text-gray-600">{{
+                                    "%.1f"|format(best_slots[0].availability_percentage) }}% of participants</div>
+                            </div>
+                            <span
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Best Option
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Expandable Content -->
+                <div id="bestSlotsContent" class="hidden mt-4 space-y-4">
+                    {% for slot in best_slots[1:] %}
+                    <div class="flex flex-col p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center justify-between mb-2">
+                            <div>
+                                <div class="font-medium text-lg">{{ slot.date }}</div>
+                                <div class="text-gray-600">{{ slot.time }} SGT</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">{{ slot.num_available }} people available</div>
+                                <div class="text-sm text-gray-600">{{ "%.1f"|format(slot.availability_percentage) }}% of
+                                    participants</div>
+                            </div>
+                        </div>
+                        <div class="mt-2 pt-2 border-t border-gray-200">
+                            <div class="text-sm font-medium text-gray-700 mb-1">Available People:</div>
+                            <div class="flex flex-wrap gap-2">
+                                {% for person in slot.available_people %}
+                                <span
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {{ person }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Continuous Slots Section -->
+            {% if continuous_slots %}
+            <!-- Debug info -->
+            <!-- <div class="bg-yellow-100 p-4 mb-4 rounded-lg">
+                    <p>Debug: Found continuous slots</p>
+                    <p>1 hour slots: {{ continuous_slots.one_hour|length }}</p>
+                    <p>2 hour slots: {{ continuous_slots.two_hour|length }}</p>
+                    <p>3 hour slots: {{ continuous_slots.three_hour|length }}</p>
+                </div> -->
+
+            <!-- Replace the existing heatmap section with this -->
+            {% if time_slots %}
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h4 class="text-xl font-semibold mb-4">Availability Heatmap</h4>
+                <div class="overflow-x-auto max-h-[600px]"> <!-- Added max height -->
+                    <div id="heatmap" class="min-w-full">
+                        <!-- Heatmap will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h4 class="text-xl font-semibold mb-4">Extended Meeting Time Slots</h4>
+
+                <!-- Tabs -->
+                <div class="border-b border-gray-200 mb-4">
+                    <nav class="-mb-px flex flex-wrap gap-2 sm:gap-4" aria-label="Tabs">
+                        <button onclick="showTab('one-hour')"
+                            class="tab-button whitespace-nowrap py-2 px-3 sm:px-4 border-b-2 text-sm font-medium transition-colors duration-200 ease-in-out active-tab flex items-center justify-center"
+                            data-tab="one-hour">
+                            <span class="hidden sm:inline">1 Hour</span>
+                            <span class="sm:hidden">1H</span>
+                            {% if continuous_slots.one_hour %}
+                            <span class="ml-1.5 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                {{ continuous_slots.one_hour|length }}
+                            </span>
+                            {% endif %}
+                        </button>
+                        <button onclick="showTab('two-hour')"
+                            class="tab-button whitespace-nowrap py-2 px-3 sm:px-4 border-b-2 text-sm font-medium transition-colors duration-200 ease-in-out flex items-center justify-center"
+                            data-tab="two-hour">
+                            <span class="hidden sm:inline">2 Hours</span>
+                            <span class="sm:hidden">2H</span>
+                            {% if continuous_slots.two_hour %}
+                            <span class="ml-1.5 bg-green-100 text-green-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                {{ continuous_slots.two_hour|length }}
+                            </span>
+                            {% endif %}
+                        </button>
+                        <button onclick="showTab('three-hour')"
+                            class="tab-button whitespace-nowrap py-2 px-3 sm:px-4 border-b-2 text-sm font-medium transition-colors duration-200 ease-in-out flex items-center justify-center"
+                            data-tab="three-hour">
+                            <span class="hidden sm:inline">3 Hours</span>
+                            <span class="sm:hidden">3H</span>
+                            {% if continuous_slots.three_hour %}
+                            <span class="ml-1.5 bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-0.5 rounded-full">
+                                {{ continuous_slots.three_hour|length }}
+                            </span>
+                            {% endif %}
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="one-hour" class="tab-content">
+                    {% if continuous_slots.one_hour %}
+                    <div class="space-y-3">
+                        {% for block in continuous_slots.one_hour %}
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="font-medium text-lg">{{ block.date }}</div>
+                                    <div class="text-gray-600">{{ block.start_time }} - {{ block.end_time }} SGT</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-medium">{{ block.avg_available }} people available</div>
+                                    <div class="text-sm text-gray-600">{{ "%.1f"|format(block.avg_percentage) }}% of
+                                        participants</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="text-sm font-medium text-gray-700 mb-1">Available for entire duration:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for person in block.available_people %}
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        {{ person }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500 text-center py-4">No 1-hour slots available</p>
+                    {% endif %}
+                </div>
+
+                <div id="two-hour" class="tab-content hidden">
+                    {% if continuous_slots.two_hour %}
+                    <div class="space-y-3">
+                        {% for block in continuous_slots.two_hour %}
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="font-medium text-lg">{{ block.date }}</div>
+                                    <div class="text-gray-600">{{ block.start_time }} - {{ block.end_time }} SGT</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-medium">{{ block.avg_available }} people available</div>
+                                    <div class="text-sm text-gray-600">{{ "%.1f"|format(block.avg_percentage) }}% of
+                                        participants</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="text-sm font-medium text-gray-700 mb-1">Available for entire duration:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for person in block.available_people %}
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        {{ person }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500 text-center py-4">No 2-hour slots available</p>
+                    {% endif %}
+                </div>
+
+                <div id="three-hour" class="tab-content hidden">
+                    {% if continuous_slots.three_hour %}
+                    <div class="space-y-3">
+                        {% for block in continuous_slots.three_hour %}
+                        <div class="p-4 bg-gray-50 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <div class="font-medium text-lg">{{ block.date }}</div>
+                                    <div class="text-gray-600">{{ block.start_time }} - {{ block.end_time }} SGT</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-medium">{{ block.avg_available }} people available</div>
+                                    <div class="text-sm text-gray-600">{{ "%.1f"|format(block.avg_percentage) }}% of
+                                        participants</div>
+                                </div>
+                            </div>
+                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                <div class="text-sm font-medium text-gray-700 mb-1">Available for entire duration:</div>
+                                <div class="flex flex-wrap gap-2">
+                                    {% for person in block.available_people %}
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                        {{ person }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-gray-500 text-center py-4">No 3-hour slots available</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Time Slots Table with Toggle -->
+            <div class="bg-white shadow-md rounded p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-xl font-semibold">All Time Slots</h4>
+                    <button onclick="toggleTimeSlots()" class="text-indigo-600 hover:text-indigo-800">
+                        <span id="timeSlotsToggleText">Show More</span>
+                        <i id="timeSlotsArrow" class="fas fa-chevron-down ml-1"></i>
+                    </button>
+                </div>
+
+                <!-- Preview of first few slots -->
+                <div class="overflow-x-auto mb-4">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Time (SGT)</th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Availability</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for slot in time_slots[:3] %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">{{ slot.date or 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">{{ slot.time or 'N/A' }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <span class="mr-2">{{ slot.num_available }}</span>
+                                        <span class="text-sm text-gray-500">({{
+                                            "%.1f"|format(slot.availability_percentage) }}%)</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Full table (hidden by default) -->
+                <div id="timeSlotsContent" class="hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Date</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Time (SGT)</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Availability</th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        People Available</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                {% for slot in time_slots %}
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ slot.date or 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ slot.time or 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="flex items-center">
+                                            <span class="mr-2">{{ slot.num_available }}</span>
+                                            <span class="text-sm text-gray-500">({{
+                                                "%.1f"|format(slot.availability_percentage) }}%)</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-wrap gap-1">
+                                            {% for person in slot.available_people %}
+                                            <span
+                                                class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                {{ person }}
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <script>
+            function toggleBestSlots() {
+                const content = document.getElementById('bestSlotsContent');
+                const toggleText = document.getElementById('bestSlotsToggleText');
+                const arrow = document.getElementById('bestSlotsArrow');
+
+                content.classList.toggle('hidden');
+                toggleText.textContent = content.classList.contains('hidden') ? 'Show More' : 'Show Less';
+                arrow.classList.toggle('fa-chevron-up');
+                arrow.classList.toggle('fa-chevron-down');
+            }
+
+            function toggleTimeSlots() {
+                const content = document.getElementById('timeSlotsContent');
+                const toggleText = document.getElementById('timeSlotsToggleText');
+                const arrow = document.getElementById('timeSlotsArrow');
+
+                content.classList.toggle('hidden');
+                toggleText.textContent = content.classList.contains('hidden') ? 'Show More' : 'Show Less';
+                arrow.classList.toggle('fa-chevron-up');
+                arrow.classList.toggle('fa-chevron-down');
+            }
+        </script>
         {% endif %}
 
-        {% if error %}
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-            <strong class="font-bold">Error!</strong>
-            <span class="block sm:inline">{{ error }}</span>
-        </div>
+
+
+        <script>
+            const timeSlotData = {{ time_slots| tojson | safe }};
+
+            // Group time slots by date
+            const groupedSlots = {};
+            timeSlotData.forEach(slot => {
+                if (!groupedSlots[slot.date]) {
+                    groupedSlots[slot.date] = [];
+                }
+                groupedSlots[slot.date].push({
+                    time: slot.time,
+                    availability: slot.availability_percentage,
+                    numAvailable: slot.num_available
+                });
+            });
+
+            // Create heatmap
+            const heatmapContainer = document.getElementById('heatmap');
+            const table = document.createElement('table');
+            table.className = 'w-full border-collapse table-fixed'; // Added table-fixed
+
+            // Create header row with times
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = '<th class="p-1 border sticky left-0 bg-white z-10 w-24">Date</th>'; // Made date column sticky
+
+            // Get unique times and format them to be more compact
+            const times = [...new Set(timeSlotData.map(slot => slot.time))];
+            times.forEach(time => {
+                // Format time to be more compact (e.g., "9:00 AM" -> "9A")
+                const compactTime = time.replace(':00', '').replace(' AM', 'A').replace(' PM', 'P');
+                headerRow.innerHTML += `
+                    <th class="p-1 border text-xs w-12 h-12"> <!-- Fixed width for time columns -->
+                        <div class="transform -rotate-45 origin-left translate-y-3 whitespace-nowrap">
+                            ${compactTime}
+                        </div>
+                    </th>`;
+            });
+
+            table.appendChild(headerRow);
+
+            // Create rows for each date
+            Object.keys(groupedSlots).forEach(date => {
+                const row = document.createElement('tr');
+                // Make date column sticky and format date to be more compact
+                const compactDate = date.replace(', ', '\n'); // Split date into two lines
+                row.innerHTML = `
+                    <td class="p-1 border font-medium sticky left-0 bg-white z-10 text-sm">
+                        ${compactDate}
+                    </td>`;
+
+                times.forEach(time => {
+                    const slot = groupedSlots[date].find(s => s.time === time);
+                    if (slot) {
+                        // Use a gradient from red to yellow to green
+                        const hue = (slot.availability * 1.2); // Multiply by 1.2 to make colors more vibrant
+                        const bgColor = `hsl(${hue}, 70%, 50%)`; // Using HSL for better color gradient
+                        row.innerHTML += `
+                            <td class="p-0 border text-center relative group h-12 w-12"> <!-- Fixed height and width -->
+                                <div class="w-full h-full flex items-center justify-center" style="background-color: ${bgColor}">
+                                    <span class="text-xs font-bold text-white">${slot.numAvailable}</span>
+                                    <div class="hidden group-hover:block absolute z-20 bg-black text-white p-2 rounded text-xs whitespace-nowrap">
+                                        ${time}<br/>
+                                        ${slot.numAvailable} people available<br/>
+                                        ${slot.availability.toFixed(1)}%
+                                    </div>
+                                </div>
+                            </td>`;
+                    } else {
+                        row.innerHTML += '<td class="p-1 border bg-gray-100 h-12 w-12"></td>';
+                    }
+                });
+
+                table.appendChild(row);
+            });
+
+            heatmapContainer.appendChild(table);
+        </script>
         {% endif %}
 
         <script>
@@ -233,75 +722,40 @@
             const loadingOverlay = document.querySelector('.loading-overlay');
             const loadingMessage = document.getElementById('loading-message');
 
-            const messages = [
-                "Summoning the SMU lions for scheduling wisdom...",
-                "Consulting the Kwa Geok Choo Law Library for time management secrets...",
-                "Decoding the matrix of SMU seminar room bookings...",
-                "Channeling the spirit of teamLEAD for group coordination...",
-                "Aligning schedules with the precision of SMU's bell curve...",
-                "Navigating the maze of SMU's underground concourse for lost time slots...",
-                "Harnessing the power of SMU's Bloomberg terminals for availability analysis...",
-                "Seeking guidance from the wise owls of SMU's School of Information Systems...",
-                "Performing a SWOT analysis on everyone's schedules...",
-                "Applying SMU's analytics prowess to solve the scheduling puzzle...",
-                "Unleashing the collaborative spirit of SMU's seminar-style learning...",
-                "Optimizing timetables with the efficiency of SMU's bidding system...",
-                "Syncing schedules faster than SMU's campus Wi-Fi...",
-                "Crunching numbers harder than an SMU accountancy major...",
-                "Negotiating time slots with the finesse of an SMU law student..."
-            ];
-
-            let messageIndex = 0;
-            let progress = 0;
-
-            function updateLoadingMessage() {
-                const randomIndex = Math.floor(Math.random() * messages.length);
-                loadingMessage.textContent = messages[randomIndex];
-                progress += 10;
-                if (progress < 100) {
-                    setTimeout(updateLoadingMessage, 3000);
-                }
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    loadingOverlay.style.display = 'block';
+                    updateLoadingMessage();
+                    this.submit();
+                });
             }
 
-            form.addEventListener('submit', function (e) {
-                e.preventDefault();
-                loadingOverlay.style.display = 'block';
-                updateLoadingMessage();
-                this.submit();
-            });
+            function updateLoadingMessage() {
+                const messages = [
+                    "Summoning the SMU lions for scheduling wisdom...",
+                    "Consulting the Kwa Geok Choo Law Library for time management secrets...",
+                    // Add more messages as needed
+                ];
+                const randomIndex = Math.floor(Math.random() * messages.length);
+                loadingMessage.textContent = messages[randomIndex];
+            }
 
             function copyMessage() {
                 const messageElement = document.getElementById('generated-message');
-                const messageText = messageElement.innerText;
-
-                navigator.clipboard.writeText(messageText).then(function () {
-                    alert('Message copied to clipboard!');
-                }, function (err) {
-                    console.error('Could not copy text: ', err);
-                });
+                if (messageElement) {
+                    const messageText = messageElement.innerText;
+                    navigator.clipboard.writeText(messageText).then(function () {
+                        alert('Message copied to clipboard!');
+                    }, function (err) {
+                        console.error('Could not copy text: ', err);
+                    });
+                }
             }
 
             function resetForm() {
-                // Clear form fields
-                document.getElementById('names_list').value = '';
-                document.getElementById('when2meet_url').value = '';
-
-                // Remove comparison results
-                const comparisonResults = document.querySelectorAll('.bg-white.shadow-md.rounded');
-                comparisonResults.forEach(result => {
-                    if (result.querySelector('h2')) {  // Check if it's a result div
-                        result.remove();
-                    }
-                });
-
-                // Remove any error messages
-                const errorMessage = document.querySelector('.bg-red-100.border.border-red-400');
-                if (errorMessage) {
-                    errorMessage.remove();
-                }
-
-                // Scroll to top of the page
-                window.scrollTo(0, 0);
+                // Simply reload the page to reset everything
+                window.location.href = '/';
             }
 
             // New function to handle previous submission selection
@@ -328,6 +782,41 @@
 
         <!-- GoatCounter analytics -->
         <script data-goatcounter="https://bchewy.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+        <!-- Add this JavaScript for tab functionality -->
+        <script>
+            function showTab(tabId) {
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-button').forEach(button => {
+                    button.classList.remove('active-tab');
+                });
+
+                // Show selected tab content
+                document.getElementById(tabId).classList.remove('hidden');
+
+                // Add active class to selected tab
+                const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
+                activeButton.classList.add('active-tab');
+            }
+
+            // Initialize the first tab when the page loads
+            document.addEventListener('DOMContentLoaded', function () {
+                showTab('one-hour');
+            });
+        </script>
+
+        <!-- Add this script at the bottom of the page -->
+        <script>
+            // Initialize the first tab when the page loads
+            document.addEventListener('DOMContentLoaded', function () {
+                showTab('one-hour');
+            });
+        </script>
     </div>
 </body>
 
